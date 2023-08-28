@@ -27,6 +27,16 @@ export default function Home() {
   useEffect(() => {
     setLoading(true)
     axios
+      .get("https://pokeapi.co/api/v2/type")
+      .then(({ data: { results } }) => {
+        setLoading(false)
+        setTypeList(results)
+      })
+  }, [])
+
+  useEffect(() => {
+    setLoading(true)
+    axios
       .get(`https://pokeapi.co/api/v2/type/${currentType}`)
       .then(({ data: { pokemon } }) => {
         setLoading(false)
@@ -36,23 +46,17 @@ export default function Home() {
 
   useEffect(() => {
     setLoading(true)
-    axios.get(currentPageUrl).then(({ data: { next, previous, results } }) => {
-      setLoading(false)
-      setNextPageUrl(next)
-      setPrevPageUrl(previous)
-      setPokemon(results)
-    })
+    if (currentPageUrl != "") {
+      axios
+        .get(currentPageUrl)
+        .then(({ data: { next, previous, results } }) => {
+          setLoading(false)
+          setNextPageUrl(next)
+          setPrevPageUrl(previous)
+          setPokemon(results)
+        })
+    }
   }, [currentPageUrl])
-
-  useEffect(() => {
-    setLoading(true)
-    axios
-      .get("https://pokeapi.co/api/v2/type")
-      .then(({ data: { results } }) => {
-        setLoading(false)
-        setTypeList(results)
-      })
-  }, [])
 
   if (loading) {
     return <Loading />
@@ -90,6 +94,7 @@ export default function Home() {
               id="inputState"
               className="form-select"
               onChange={(e) => {
+                setCurrentPageUrl("")
                 setCurrentType(e.target.value.toLowerCase())
               }}
             >
@@ -120,6 +125,7 @@ export default function Home() {
               aria-label="Close"
               onClick={() => {
                 setCurrentPageUrl("https://pokeapi.co/api/v2/pokemon?limit=9")
+                setCurrentType("")
               }}
             ></button>
           </div>
