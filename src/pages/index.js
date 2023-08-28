@@ -7,6 +7,8 @@ import Pagination from "../../components/Pagination"
 
 export default function Home() {
   const [pokemon, setPokemon] = useState([])
+  const [typeList, setTypeList] = useState([])
+  const [currentType, setCurrentType] = useState("")
   const [currentPageUrl, setCurrentPageUrl] = useState(
     "https://pokeapi.co/api/v2/pokemon?limit=9"
   )
@@ -24,6 +26,16 @@ export default function Home() {
 
   useEffect(() => {
     setLoading(true)
+    axios
+      .get(`https://pokeapi.co/api/v2/type/${currentType}`)
+      .then(({ data: { pokemon } }) => {
+        setLoading(false)
+        setPokemon(pokemon)
+      })
+  }, [currentType])
+
+  useEffect(() => {
+    setLoading(true)
     axios.get(currentPageUrl).then(({ data: { next, previous, results } }) => {
       setLoading(false)
       setNextPageUrl(next)
@@ -31,6 +43,16 @@ export default function Home() {
       setPokemon(results)
     })
   }, [currentPageUrl])
+
+  useEffect(() => {
+    setLoading(true)
+    axios
+      .get("https://pokeapi.co/api/v2/type")
+      .then(({ data: { results } }) => {
+        setLoading(false)
+        setTypeList(results)
+      })
+  }, [])
 
   if (loading) {
     return <Loading />
@@ -59,41 +81,88 @@ export default function Home() {
             Abdullah Al-Karim Amrullah
           </a>
         </p>
-        <div className="input-group mb-3 py-4">
-          <input
-            type="text"
-            className="form-control py-3"
-            placeholder="Search your favorite poke"
-            aria-label="Search"
-            aria-describedby="button-addon2"
-            // onChange={(e) => {
-            //   setKeyword(e.target.value.toLowerCase())
-            // }}
-            // onKeyDown={(e) => {
-            //   if (e.key === "Enter") {
-            //     handleSearch()
-            //   }
-            // }}
-          />
-          <button
-            className="btn btn-primary px-5"
-            type="submit"
-            id="button-addon2"
-            // onClick={handleSearch}
+        <div className="row justify-content-end">
+          <div className="col-md-3">
+            <label for="inputState" className="form-label">
+              Sort by type
+            </label>
+            <select
+              id="inputState"
+              className="form-select"
+              onChange={(e) => {
+                setCurrentType(e.target.value.toLowerCase())
+              }}
+            >
+              <option>Select type...</option>
+              {typeList?.map((type) => {
+                return (
+                  <>
+                    <option>
+                      {type?.name?.charAt(0).toUpperCase() +
+                        type?.name.slice(1)}
+                    </option>
+                  </>
+                )
+              })}
+            </select>
+          </div>
+        </div>
+        {currentType && (
+          <div
+            className="alert alert-warning alert-dismissible fade show mt-3"
+            role="alert"
           >
-            Search
-          </button>
+            List of Pokemon Sort by Type <strong>{currentType}</strong>
+            <button
+              type="button"
+              className="btn-close"
+              data-bs-dismiss="alert"
+              aria-label="Close"
+              onClick={() => {
+                setCurrentPageUrl("https://pokeapi.co/api/v2/pokemon?limit=9")
+              }}
+            ></button>
+          </div>
+        )}
+        <div className="row row-cols-2 row-cols-md-2 g-2 justify-content-center pt-3">
+          {currentType != ""
+            ? pokemon?.map((poke, index) => {
+                return (
+                  <PokemonList
+                    name={poke?.pokemon?.name}
+                    url={poke?.pokemon?.url}
+                    key={index}
+                  />
+                )
+              })
+            : pokemon?.map((poke, index) => {
+                return (
+                  <PokemonList name={poke?.name} url={poke?.url} key={index} />
+                )
+              })}
+          {/* {pokemon?.map((poke, index) => {
+            if (currentType != "") {
+              return (
+                <PokemonList
+                  name={poke?.pokemon?.name}
+                  url={poke?.pokemon?.url}
+                  key={index}
+                />
+              )
+            } else {
+              return (
+                
+              )
+            }
+          })} */}
         </div>
-        <div className="row row-cols-2 row-cols-md-2 g-2 justify-content-center">
-          {pokemon.map((poke, index) => {
-            return <PokemonList name={poke?.name} url={poke?.url} key={index} />
-          })}
-        </div>
-        <Pagination
-          prevPageUrl={prevPageUrl}
-          handlePreviousPage={handlePreviousPage}
-          handleNextPage={handleNextPage}
-        />
+        {!currentType && (
+          <Pagination
+            prevPageUrl={prevPageUrl}
+            handlePreviousPage={handlePreviousPage}
+            handleNextPage={handleNextPage}
+          />
+        )}
       </div>
     </>
   )

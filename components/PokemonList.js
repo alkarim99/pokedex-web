@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react"
-import { useRouter } from "next/router"
 import Link from "next/link"
 import axios from "axios"
 
 function PokemonList({ name, url }) {
-  const router = useRouter()
   const [detail, setDetail] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -15,11 +13,6 @@ function PokemonList({ name, url }) {
       setDetail(data)
     })
   }, [])
-
-  const handleClick = () => {
-    // console.log(name)
-    router.push("/detail", name)
-  }
 
   return (
     <>
@@ -47,7 +40,7 @@ function PokemonList({ name, url }) {
             <div className="col-md">
               <div className="card-body d-flex flex-column justify-content-center h-100">
                 <h5 className="card-title placeholder-glow">
-                  {name.charAt(0).toUpperCase() + name.slice(1)}
+                  {name?.charAt(0).toUpperCase() + name?.slice(1)}
                 </h5>
                 <p className="card-text">
                   {loading && <span class="placeholder col-6"></span>}
