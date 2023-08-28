@@ -1,4 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css"
+import "../styles/PokemonList.css"
 
 import Head from "next/head"
 import { useEffect } from "react"

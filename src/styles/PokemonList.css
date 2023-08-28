@@ -1,0 +1,10 @@
+@media only screen and (max-width: 768px) {
+  .card {
+    max-width: 540px;
+    min-height: 280px;
+  }
+}
+
+.card {
+  max-width: 540px;
+}
